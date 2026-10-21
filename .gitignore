@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data: raw images ARE versioned; compressed archives are not (GitHub 100 MB file limit)
+data/**/*.zip
+data/**/*.tar
+data/**/*.tar.gz
+
+# Trained weights (too large for git)
+outputs/models/*
+!outputs/models/.gitkeep
+
+# LaTeX build files
+report/*.aux
+report/*.log
+report/*.out
+report/*.synctex.gz
+report/*.fdb_latexmk
+report/*.fls
+report/*.bbl
+report/*.blg
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
