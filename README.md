@@ -40,13 +40,30 @@ brain-tumor-mri-cnn/
 └── requirements.txt
 ```
 
-## Setup
+## Dataset findings
+
+The exploratory analysis found that the dataset contains copies of the same slice (exact duplicates, rescaled or contrast-modified versions), concentrated in the *healthy* class: at least 52 % of its images are redundant. A random split would place copies of the same slice in both train and test, inflating the metrics. For this reason the project uses a **group-aware stratified split** (`data/splits/split_grupos.csv`), where all copies of a slice fall in the same partition, and quantifies the effect of leakage against a random split.
+
+## How to run
+
+The main notebook is [`notebooks/01_solucion_cnn_mri.ipynb`](notebooks/01_solucion_cnn_mri.ipynb). It runs end to end and writes every table, figure and model to `outputs/`. **An NVIDIA GPU is required** for the full run.
+
+**Local (NVIDIA GPU):**
 
 ```bash
-pip install -r requirements.txt
+git clone https://github.com/panamiguell/brain-tumor-mri-cnn.git
+cd brain-tumor-mri-cnn
+# 1. Install PyTorch with CUDA following https://pytorch.org/get-started/locally/
+# 2. Install the remaining dependencies
+pip install -r requirements.txt jupyter
+jupyter notebook notebooks/01_solucion_cnn_mri.ipynb   # or open it in VS Code
 ```
 
-See [`data/README.md`](data/README.md) for how to obtain the data.
+Then run all cells (*Run All*). If the run is interrupted, running it again reloads the already trained models from `outputs/models/` instead of retraining them.
+
+**Google Colab:** open the notebook from GitHub, set *Runtime > Change runtime type > GPU* and run all cells. The first cell clones this repository, data included.
+
+**Smoke test without GPU:** set the environment variable `MP1_QUICK=1` to run the whole pipeline on a small subset for one epoch (outputs go to `outputs/_smoke_test/`, not versioned).
 
 ## Results
 
