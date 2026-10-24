@@ -1,0 +1,2 @@
+modelo,accuracy,acc_IC95,balanced_acc,f1_macro,auc_ovr_macro,tumor→sano (FN clínico),tasa tumor→sano
+CNN propia (desde cero),0.9661016949152542,"[0.9541, 0.9761]",0.9662818871388847,0.9657119492547033,0.9944867151746742,5,0.007

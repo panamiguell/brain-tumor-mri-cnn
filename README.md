@@ -31,12 +31,13 @@ brain-tumor-mri-cnn/
 ├── data/
 │   ├── raw/          # Original dataset, as downloaded from Kaggle (see data/README.md)
 │   └── splits/       # CSV files with the train / val / test split (versioned for reproducibility)
-├── notebooks/        # Jupyter notebooks (exploration, training, evaluation)
+├── notebooks/        # 01_solucion_cnn_mri.ipynb (v1) and 01_solucion_cnn_mri_v2.ipynb (v2, report results)
 ├── outputs/
 │   ├── figures/      # Figures used in the report
 │   ├── tables/       # Metrics tables (CSV)
-│   └── models/       # Trained weights (.pt, not versioned)
-├── report/           # IEEE / CVPR-style report (LaTeX)
+│   └── models/       # Trained weights (v1: not versioned; v2: weights and results versioned)
+├── report/           # IEEE-style report (LaTeX source, figures in report/figs/, compiled PDF)
+├── docs/             # Assignment statement and course report templates (Word / LaTeX)
 └── requirements.txt
 ```
 
@@ -60,6 +61,8 @@ jupyter notebook notebooks/01_solucion_cnn_mri.ipynb   # or open it in VS Code
 ```
 
 Then run all cells (*Run All*). If the run is interrupted, running it again reloads the already trained models from `outputs/models/` instead of retraining them.
+
+**Notebook v2 (`notebooks/01_solucion_cnn_mri_v2.ipynb`):** produces the results and figures of the report (`report/`). It runs on CPU, CUDA or Apple MPS and can be opened from `notebooks/` or from the repository root. Its trained weights and experiment results are versioned in `outputs/models/`, so a full run reloads them instead of retraining (set `RETRAIN = True` and delete `outputs/models/exp_*.json` to retrain from scratch, ~4 h on CPU).
 
 **Google Colab:** open the notebook from GitHub, set *Runtime > Change runtime type > GPU* and run all cells. The first cell clones this repository, data included.
 
