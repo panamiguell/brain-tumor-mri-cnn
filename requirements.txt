@@ -1,5 +1,7 @@
-torch
-torchvision
+# Versions used for the reported run (Python 3.13): torch 2.14.1, torchvision 0.29.1.
+# Install PyTorch for your platform first: https://pytorch.org/get-started/locally/
+torch>=2.14
+torchvision>=0.29
 numpy
 pandas
 matplotlib
