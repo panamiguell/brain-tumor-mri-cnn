@@ -23,7 +23,7 @@ Each MRI volume is a stack of 2D slices. Instead of processing full 3D volumes, 
 2. **Data pipeline:** group-aware stratified split 70/15/15 (5,016 / 1,004 / 1,003), grayscale, pad-to-square, 128×128, train-only normalization and augmentation.
 3. **Custom CNN:** 4 VGG-style blocks ([Conv3×3, BatchNorm, ReLU]×2 + max pooling; 16-32-64-128 filters), global average pooling, dropout and a linear classifier (294,228 parameters). AdamW, cosine annealing, label smoothing, model selection by validation macro F1.
 4. **Evaluation:** accuracy with bootstrap CI, balanced accuracy, macro F1, one-vs-rest AUC, per-class recall, tumor-to-healthy false negatives, 3 seeds, a random-vs-group split leakage experiment, and Grad-CAM.
-5. **Transfer learning (ResNet-18):** implemented in the notebook but not executed in the reported run (no access to the ImageNet weights).
+5. **Transfer learning (ResNet-18):** fine-tuning code is included in the notebook (Section 7) as an optional alternative; it is not part of the reported results and is listed as future work in the report.
 
 ## Repository structure
 
@@ -32,12 +32,10 @@ brain-tumor-mri-cnn/
 ├── data/
 │   ├── raw/          # Original dataset, as downloaded from Kaggle (see data/README.md)
 │   └── splits/       # CSV files with the train / val / test split (versioned for reproducibility)
-├── notebooks/        # 01_solucion_cnn_mri.ipynb (v1) and 01_solucion_cnn_mri_v2.ipynb (v2, report results)
+├── notebooks/        # MicroProyecto1_CNN_MRI.ipynb (deliverable, report results); archive/ holds an earlier draft
 ├── outputs/
-│   ├── figures/      # Figures used in the report
-│   ├── tables/       # Metrics tables (CSV)
-│   └── models/       # Trained weights (v1: not versioned; v2: weights and results versioned)
-├── report/           # IEEE-style report (LaTeX source, figures in report/figs/, compiled PDF)
+│   └── models/       # Trained weights, training history and experiment results (versioned)
+├── report/           # IEEE-style report (LaTeX source, figures in report/figs/ exported by the notebook, compiled PDF)
 ├── docs/             # Assignment statement and course report templates (Word / LaTeX)
 └── requirements.txt
 ```
@@ -48,26 +46,20 @@ The exploratory analysis found that the dataset contains copies of the same slic
 
 ## How to run
 
-The main notebook is [`notebooks/01_solucion_cnn_mri.ipynb`](notebooks/01_solucion_cnn_mri.ipynb). It runs end to end and writes every table, figure and model to `outputs/`. **An NVIDIA GPU is required** for the full run.
-
-**Local (NVIDIA GPU):**
+The deliverable notebook is [`notebooks/MicroProyecto1_CNN_MRI.ipynb`](notebooks/MicroProyecto1_CNN_MRI.ipynb). It produces every number, table and figure of the report (`report/`), exporting the report figures to `report/figs/` and a summary of the cited figures to `outputs/models/resumen_informe.json`. It runs on CPU, NVIDIA GPU (CUDA) or Apple Silicon (MPS) and can be opened from `notebooks/` or from the repository root.
 
 ```bash
 git clone https://github.com/panamiguell/brain-tumor-mri-cnn.git
 cd brain-tumor-mri-cnn
-# 1. Install PyTorch with CUDA following https://pytorch.org/get-started/locally/
+# 1. Install PyTorch for your platform following https://pytorch.org/get-started/locally/
 # 2. Install the remaining dependencies
 pip install -r requirements.txt jupyter
-jupyter notebook notebooks/01_solucion_cnn_mri.ipynb   # or open it in VS Code
+jupyter notebook notebooks/MicroProyecto1_CNN_MRI.ipynb   # or open it in VS Code
 ```
 
-Then run all cells (*Run All*). If the run is interrupted, running it again reloads the already trained models from `outputs/models/` instead of retraining them.
+Then run all cells (*Run All*). The trained weights and experiment results are versioned in `outputs/models/`, so a full run reloads them instead of retraining. To retrain from scratch, set `RETRAIN = True` and delete `outputs/models/exp_*.json` (~4 h on a 2-core CPU; much less with a GPU or MPS).
 
-**Notebook v2 (`notebooks/01_solucion_cnn_mri_v2.ipynb`):** produces the results and figures of the report (`report/`). It runs on CPU, CUDA or Apple MPS and can be opened from `notebooks/` or from the repository root. Its trained weights and experiment results are versioned in `outputs/models/`, so a full run reloads them instead of retraining (set `RETRAIN = True` and delete `outputs/models/exp_*.json` to retrain from scratch, ~4 h on CPU).
-
-**Google Colab:** open the notebook from GitHub, set *Runtime > Change runtime type > GPU* and run all cells. The first cell clones this repository, data included.
-
-**Smoke test without GPU:** set the environment variable `MP1_QUICK=1` to run the whole pipeline on a small subset for one epoch (outputs go to `outputs/_smoke_test/`, not versioned).
+`notebooks/archive/01_solucion_cnn_mri_v1.ipynb` is an earlier, unexecuted draft kept for reference only; it is not part of the submission.
 
 ## Results
 
