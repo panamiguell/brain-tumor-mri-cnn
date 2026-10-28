@@ -1,6 +1,6 @@
 # brain-tumor-mri-cnn
 
-Brain tumor classification from MRI slices (glioma, meningioma, pituitary, healthy) using CNNs in PyTorch. Compares a custom CNN, with an ablation on depth and kernel size, against fine-tuned pretrained networks, evaluated with medical-oriented metrics on 7,023 images.
+Brain tumor classification from MRI slices (glioma, meningioma, pituitary, healthy) with a compact CNN trained from scratch in PyTorch, using a duplicate-aware data split, multi-seed evaluation, a data-leakage experiment and Grad-CAM interpretability on 7,023 images.
 
 > Mini-project 1 of the course *Técnicas de Deep Learning* (MAIA-4213), MSc in Artificial Intelligence, Universidad de los Andes.
 
@@ -17,12 +17,13 @@ Each MRI volume is a stack of 2D slices. Instead of processing full 3D volumes, 
 
 **Dataset:** [Brain Tumor (MRI Scans) — Kaggle](https://www.kaggle.com/datasets/rm1000/brain-tumor-mri-scans), 7,023 images.
 
-## Approach (planned)
+## Approach
 
-1. **Data pipeline:** loading, stratified train / validation / test split with a fixed seed, preprocessing and data augmentation.
-2. **Custom CNN:** convolution + ReLU + max-pooling blocks, with an ablation over the number of blocks and the kernel size.
-3. **Transfer learning:** fine-tuning of pretrained networks (e.g. ResNet, DenseNet).
-4. **Evaluation:** accuracy, macro F1, per-class precision / recall, confusion matrix, and qualitative analysis of hits and misses.
+1. **Duplicate detection:** exact copies (MD5) and near-duplicates (dHash + Pearson correlation ≥ 0.95) are grouped; 7,023 images form 5,835 groups.
+2. **Data pipeline:** group-aware stratified split 70/15/15 (5,016 / 1,004 / 1,003), grayscale, pad-to-square, 128×128, train-only normalization and augmentation.
+3. **Custom CNN:** 4 VGG-style blocks ([Conv3×3, BatchNorm, ReLU]×2 + max pooling; 16-32-64-128 filters), global average pooling, dropout and a linear classifier (294,228 parameters). AdamW, cosine annealing, label smoothing, model selection by validation macro F1.
+4. **Evaluation:** accuracy with bootstrap CI, balanced accuracy, macro F1, one-vs-rest AUC, per-class recall, tumor-to-healthy false negatives, 3 seeds, a random-vs-group split leakage experiment, and Grad-CAM.
+5. **Transfer learning (ResNet-18):** implemented in the notebook but not executed in the reported run (no access to the ImageNet weights).
 
 ## Repository structure
 
@@ -70,4 +71,15 @@ Then run all cells (*Run All*). If the run is interrupted, running it again relo
 
 ## Results
 
-_To be completed._
+Test set of 1,003 images, group-aware split (no duplicates across partitions):
+
+| Model | Accuracy | Balanced acc. | Macro F1 | AUC (OvR) |
+|---|---|---|---|---|
+| Custom CNN, seed 42 | 0.9661 (95 % CI 0.954-0.976) | 0.9663 | 0.9657 | 0.9945 |
+| Custom CNN, 3 seeds (mean ± std) | **0.9711 ± 0.0062** | 0.9710 ± 0.0061 | 0.9707 ± 0.0063 | 0.9946 ± 0.0008 |
+
+- Per-class recall (seed 42): glioma 0.987, meningioma 0.949, pituitary 0.964, healthy 0.965. Only 5 of 717 tumors (0.7 %) are classified as healthy.
+- **Data leakage:** with a random split the same CNN reaches 0.9781; test images with a near-duplicate in train reach 0.9909 vs 0.9745 without one (Fisher exact test p = 0.19).
+- **Main limitation:** the healthy class comes from a different source (lower resolution, higher intensity, mostly non-square), so part of the healthy/tumor separation may rely on acquisition shortcuts rather than pathology.
+
+Full report: [`report/Informe_MicroProyecto_CNN_MRI.pdf`](report/Informe_MicroProyecto_CNN_MRI.pdf).
